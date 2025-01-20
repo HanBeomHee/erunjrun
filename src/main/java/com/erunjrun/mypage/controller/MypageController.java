@@ -35,8 +35,7 @@ public class MypageController {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	MypageService mypageService;
+	@Autowired MypageService mypageService;
 
 	@GetMapping(value = "/profileDetail")
 	public String profileDetail(Model model, HttpSession session) {
