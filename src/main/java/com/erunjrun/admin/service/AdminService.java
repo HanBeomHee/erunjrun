@@ -176,7 +176,6 @@ public class AdminService {
    @PostConstruct
     public void init() {
      
-        checkAndUpdateStatus(); // 서버가 시작될 때 권한 업데이트
     }
    
    
@@ -190,7 +189,6 @@ public class AdminService {
         try {
             // 1. 오늘 또는 과거의 시작일에 해당하는 권한을 'Y'로 변경
             admin_dao.updateRightY(sqlDate);
-            
 
             // 2. 오늘 또는 과거의 종료일에 해당하는 권한을 'N'으로 변경
             admin_dao.updateRightN(sqlDate);

@@ -39,13 +39,27 @@
 		
 		
 		
+		<!-- AES 암호화 -->
+		<dependency>
+		    <groupId>commons-codec</groupId>
+		    <artifactId>commons-codec</artifactId>
+		    <version>1.15</version> <!-- 최신 버전을 확인 후 사용 -->
+		</dependency>
 		
+		<!-- security -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+				
 		<!-- web socket -->
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
-		 <dependency>
+		
+		<!-- ??? -->
+		<dependency>
         <groupId>javax.servlet</groupId>
 	        <artifactId>javax.servlet-api</artifactId>
 	        <scope>provided</scope>
@@ -64,6 +78,7 @@
 			<version>2.3.2</version>
 		</dependency>
 
+		<!-- maria DB -->
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
@@ -71,7 +86,6 @@
 		</dependency>
 		
 		<!-- jsp 지원 라이브러리 -->
-		<!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jasper -->
 		<dependency>
 		    <groupId>org.apache.tomcat</groupId>
 		    <artifactId>tomcat-jasper</artifactId>
@@ -79,14 +93,11 @@
 		</dependency>
 	
 		<!-- jstl 지원 라이브러리 -->
-		<!-- https://mvnrepository.com/artifact/javax.servlet/jstl -->
 		<dependency>
 		    <groupId>javax.servlet</groupId>
 		    <artifactId>jstl</artifactId>
 		</dependency>
 		
-		
-
 		<!-- 게시판 에디터 사용을 위해 필요한 라이브러리 -->
 		<dependency>
  		   	<groupId>org.projectlombok</groupId>
@@ -99,6 +110,25 @@
 	    	<groupId>commons-io</groupId>
 	   		<artifactId>commons-io</artifactId>
 	    	<version>2.11.0</version> <!-- 최신 버전을 확인 후 사용 -->
+		</dependency>
+		
+		<!-- 쿼리 로그 라이브러리 -->
+	    <dependency>
+	        <groupId>org.bgee.log4jdbc-log4j2</groupId>
+	        <artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
+	        <version>1.16</version>
+	    </dependency>
+
+		<!--  mail 라이브러리  -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		
+		<!-- validation 라이브러리 -->
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
 		</dependency>
 		
 		

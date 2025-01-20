@@ -37,6 +37,11 @@ public class MypageController {
 
 	@Autowired MypageService mypageService;
 
+	// 이거는 암호화된 요소들 복호화할 때 쓴다.
+	//public String getDecryptedEmail(String encryptedEmail) throws Exception {
+	//    return AESUtil.decrypt(encryptedEmail); // 암호화된 이메일 복호화
+	//}
+	
 	@GetMapping(value = "/profileDetail")
 	public String profileDetail(Model model, HttpSession session) {
 		String id = (String) session.getAttribute("loginId");
@@ -129,12 +134,12 @@ public class MypageController {
 			MemberDTO member = mypageService.findSessionId(id);
 			ProfileDTO profile = mypageService.ProfileImage(id);
 
-			if ("Y".equals(member.getProfile_use())) {
-				MypageDTO mypage = mypageService.mypageDetail(id);
-				model.addAttribute("mypage", mypage); // 모델에 MypageDTO 추가
-				// 운동 프로필이 이미 작성된 경우
-				return "redirect:/ExerciseProfile"; // 운동 프로필 페이지로 리다이렉트
-			}
+//			if ("Y".equals(member.getProfile_use())) {
+//				MypageDTO mypage = mypageService.mypageDetail(id);
+//				model.addAttribute("mypage", mypage); // 모델에 MypageDTO 추가
+//				// 운동 프로필이 이미 작성된 경우
+//				return "redirect:/ExerciseProfile"; // 운동 프로필 페이지로 리다이렉트
+//			}
 			model.addAttribute("profile", profile);
 			model.addAttribute("loginId", id);
 			model.addAttribute("member", member); // 모델에 MypageDTO 추가
@@ -156,10 +161,10 @@ public class MypageController {
 			// 회원 정보 조회
 			MemberDTO member = mypageService.profileDetail(id); // 여기서 회원 정보를 가져옴
 			ProfileDTO profile = mypageService.ProfileImage(id);
-			if ("Y".equals(member.getProfile_use())) {
-				// 운동 프로필이 이미 작성된 경우
-				return "mypage/ExerciseProfile"; // 운동 프로필 페이지로 리다이렉트
-			}
+//			if ("Y".equals(member.getProfile_use())) {
+//				// 운동 프로필이 이미 작성된 경우
+//				return "mypage/ExerciseProfile"; // 운동 프로필 페이지로 리다이렉트
+//			}
 			model.addAttribute("profile", profile);
 			model.addAttribute("loginId", id);
 			model.addAttribute("member", member); // member를 모델에 추가

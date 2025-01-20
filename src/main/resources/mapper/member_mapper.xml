@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
-   "http://mybatis.org/dtd/mybatis-3-mapper.dtd"
->
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.erunjrun.member.dao.MemberDAO">
 
-	<insert id="join" parameterType="map">
-		INSERT INTO member(id, pw, name,
-		nickName, address, birth, gender, email, phone)
-		VALUES(#{id}, #{pw},
-		#{name}, #{nickName}, #{address}, #{birth}, #{gender},
-		#{email},
-		#{phone})
+	<insert id="join" parameterType="com.erunjrun.member.dto.MemberDTO">
+		INSERT INTO member(id, pw, name, nickName, address, birth, gender, email, phone)
+		VALUES(#{id}, #{pw}, #{name}, #{nickName}, #{address}, #{birth}, #{gender}, #{email}, #{phone})
 	</insert>
 
 	<select id="login" resultType="int">

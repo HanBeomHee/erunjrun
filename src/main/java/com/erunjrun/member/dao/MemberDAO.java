@@ -1,7 +1,5 @@
 package com.erunjrun.member.dao;
 
-import java.util.Map;
-
 import org.apache.ibatis.annotations.Mapper;
 
 import com.erunjrun.admin.dto.RightDTO;
@@ -10,7 +8,7 @@ import com.erunjrun.member.dto.MemberDTO;
 @Mapper
 public interface MemberDAO {
 
-	int join(Map<String, String> params);
+	int join(MemberDTO params); // 회원가입
 
 	int idOverlay(String id);
 

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.erunjrun.member.service.MailService;
 import com.erunjrun.member.service.MemberService;
 import com.erunjrun.admin.dto.RightDTO;
 import com.erunjrun.member.dto.MemberDTO;
@@ -27,56 +28,19 @@ public class MemberController {
 	Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	MemberService memberService;
+	MemberService memberService;	
+	@Autowired
+	MailService mailService;
 
-	@GetMapping(value = "/loginView")
-	public String loginView() {
-		return "member/login";
-	}
-	
-	@PostMapping(value = "/login")
-    public String login(Model model, HttpSession session, String id, String pw) {
-        // 대소문자를 구분하여 회원 조회
-        MemberDTO member = memberService.findSessionId(id); // 대소문자 구분하여 조회
-
-        if (member == null) {
-            model.addAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
-        } else if ("Y".equals(member.getUse_yn())) {
-            model.addAttribute("msg", "탈퇴된 회원입니다."); // 탈퇴 상태 체크
-        }else if (memberService.isBan(id) != null) {
-           RightDTO rightdto = memberService.isBan(id);
-           String msg = rightdto.getEnd_date()+"일 까지 정지된 회원입니다.";
-           logger.info(msg);
-           model.addAttribute("msg",msg);
-            return "member/login";
-        } else if (member.getId().equals(id) && memberService.login(id, pw)) {
-            model.addAttribute("msg", "로그인 되었습니다!");
-            session.setAttribute("loginId", id);
-            session.setAttribute("profileImage", member.getImage()); // 프로필 이미지
-            session.setAttribute("iconImage", member.getIcon_image()); // 아이콘
-            logger.info("member.getImage()"+member.getImage());
-        } else {
-            model.addAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
-        }
-
-        return "main";
-    }
-
-	
-	@GetMapping(value = "/logOut")
-    public String logout(HttpSession session, Model model) {
-        session.invalidate(); // 세션 전체를 무효화 (세션에 저장된 모든 정보가 삭제됨)
-        model.addAttribute("msg", "로그아웃 되었습니다.");
-        return "member/login"; // 로그인 페이지로 리다이렉트
-    }
-
+	// 회원가입 페이지 이동
 	@GetMapping(value = "/joinView")
 	public String joinView() {
 		return "member/join";
 	}
-
+	
+	// 회원가입
 	@PostMapping(value = "/join")
-	public String join(Model model, @RequestParam Map<String, String> params) {
+	public String join(Model model, @RequestParam MemberDTO params) {
 		String page = "member/join";
 		if (memberService.join(params)) {
 			model.addAttribute("msg", "회원가입에 성공했습니다!");
@@ -85,6 +49,43 @@ public class MemberController {
 			model.addAttribute("msg", "회원가입에 실패했습니다.");
 		}
 		return page;
+	}
+	
+	// 로그인 페이지 이동
+	@GetMapping(value = "/loginView")
+	public String loginView() {
+		return "member/login";
+	}
+
+	// 로그인
+	@PostMapping(value = "/login")
+	public String login(Model model, HttpSession session, String id, String pw) {
+		MemberDTO member = memberService.findSessionId(id); // 대소문자 구분하여 조회
+		if (member == null) {
+			model.addAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
+		} //else if ("Y".equals(member.getUse_yn())) { // 탈퇴 상태 체크
+			//model.addAttribute("msg", "탈퇴된 회원입니다."); 
+		//} 
+		  else if (memberService.isBan(id) != null) { // 벤 상태 체크
+			RightDTO rightdto = memberService.isBan(id);
+			String msg = rightdto.getEnd_date() + "일 까지 정지된 회원입니다.";
+			model.addAttribute("msg", msg);
+			return "member/login";
+		} else if (member.getId().equals(id) && memberService.login(id, pw)) {
+			model.addAttribute("msg", "로그인 되었습니다!");
+			session.setAttribute("loginId", id);
+		} else {
+			model.addAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
+		}
+
+		return "main";
+	}
+
+	@GetMapping(value = "/logOut")
+	public String logout(HttpSession session, Model model) {
+		session.invalidate(); // 세션 전체를 무효화 (세션에 저장된 모든 정보가 삭제됨)
+		model.addAttribute("msg", "로그아웃 되었습니다.");
+		return "member/login"; // 로그인 페이지로 리다이렉트
 	}
 
 	@GetMapping(value = "/idOverlay")
@@ -105,22 +106,47 @@ public class MemberController {
 		return map;
 	}
 
+	// 이메일 중복 확인
 	@GetMapping(value = "/emailOverlay")
 	@ResponseBody
-	public Map<String, Object> getEmailOverlay(String email) {
-		logger.info("email check: " + email);
+	public Map<String, Object> getEmailOverlay(@RequestParam String email) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("overlay", memberService.emailOverlay(email));
 		return map;
 	}
-
+	
+	// 인증번호 보내기
+	@PostMapping(value = "/sendVerificationCode")
+	@ResponseBody
+    public Map<String, Object> emailOverlay(@RequestParam String email) {
+		Map<String, Object> response = new HashMap<>();
+        String verificationCode = mailService.sendVerificationCode(email);
+        if (verificationCode != null) {
+			response.put("success", true);
+		} else {
+			response.put("success", false);
+		}
+        return response;
+	}
+	
+	// 인증번호 확인
+	@PostMapping(value = "/verifyCode")
+	@ResponseBody
+    public Map<String, Object> verifyCode(@RequestParam String email, @RequestParam String verificationCode) {
+		Map<String, Object> response = new HashMap<>();
+		boolean valid = mailService.verifyCode(email, verificationCode);
+		response.put("valid", valid);
+		return response;
+	}
+	
 	@GetMapping(value = "/findIdView")
 	public String findIdview() {
 		return "member/findId";
 	}
 
 	@PostMapping(value = "/findId")
-	public String findMemberId(HttpServletRequest request, Model model, MemberDTO dto, @RequestParam String name, @RequestParam String email) {
+	public String findMemberId(HttpServletRequest request, Model model, MemberDTO dto, @RequestParam String name,
+			@RequestParam String email) {
 		dto.setName(name);
 		dto.setEmail(email);
 		MemberDTO id = memberService.findId(dto);
@@ -137,7 +163,8 @@ public class MemberController {
 	}
 
 	@PostMapping(value = "/tempPw") // 임시비밀번호 부분입니다.
-	public String tempPw(HttpServletRequest request, Model model, MemberDTO dto, @RequestParam String id, @RequestParam String name, @RequestParam String email) {
+	public String tempPw(HttpServletRequest request, Model model, MemberDTO dto, @RequestParam String id,
+			@RequestParam String name, @RequestParam String email) {
 		dto.setId(id);
 		dto.setName(name);
 		dto.setEmail(email);

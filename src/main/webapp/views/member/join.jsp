@@ -1,16 +1,13 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>회원가입</title>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<link rel="stylesheet"
-	href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="resources/css/common.css">
-<script
-	src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
 <style>
 body {
 	font-family: Arial, sans-serif;
@@ -119,53 +116,55 @@ button:hover {
 				<span id="idResult" class="result"></span>
 			</div>
 			<div class="form-group">
-				<label for="pw">비밀번호 *</label> <input type="password" name="pw"
-					required placeholder="특수문자, 영문, 숫자 8~16자" />
+				<label for="pw">비밀번호 *</label> <input type="password" name="pw" required placeholder="특수문자, 영문, 숫자 8~16자" />
 			</div>
 			<div class="form-group">
-				<label for="pwConfirm">비밀번호 확인 *</label> <input type="password"
-					name="pwConfirm" required />
+				<label for="pwConfirm">비밀번호 확인 *</label> <input type="password" name="pwConfirm" required />
 			</div>
 			<div class="form-group">
-				<label for="name">이름 *</label> <input type="text" name="name"
-					required />
+				<label for="name">이름 *</label> <input type="text" name="name" required />
 			</div>
 			<div class="form-group">
 				<label for="nickName">닉네임 *</label>
 				<div class="input-group">
-					<input type="text" name="nickName" required
-						placeholder="예시) 달려달려달려" />
+					<input type="text" name="nickName" required placeholder="예시) 달려달려달려" />
 					<button type="button" id="nickNameCheck">중복확인</button>
 				</div>
 				<span id="nickNameResult" class="result"></span>
 			</div>
 			<div class="form-group">
-				<label for="address">주소 *</label> <input type="text" name="address"
-					required placeholder="예시) 서울시 금천구 가산동" />
+				<label for="address">주소 *</label> <input type="text" name="address" required placeholder="예시) 서울시 금천구 가산동" /> <!-- 주소 api가지고 와서 클릭하게 -->
 			</div>
 			<div class="form-group">
 				<label>성별 *</label>
 				<div class="gender-group">
-					<input type="radio" name="gender" value="남" required /> 남 <input
-						type="radio" name="gender" value="여" required /> 여
+					<input type="radio" name="gender" value="남" required /> 남 
+					<input type="radio" name="gender" value="여" required /> 여
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="birth">생년월일 *</label> <input type="number" name="birth"
-					required placeholder="생년월일 8자리 입력" />
+				<label for="birth">생년월일 *</label> <input type="number" name="birth" required placeholder="생년월일 8자리 입력" /> <!-- 캘린더나 자바제공 달력을 써야 하나? -->
 			</div>
 			<div class="form-group">
-				<label for="email">이메일 *</label>
-				<div class="input-group">
-					<input type="email" name="email" required
-						placeholder="예시) run@naver.com" />
-					<button type="button" id="emailCheck">중복확인</button>
-				</div>
-				<span id="emailResult" class="result"></span>
+			    <label for="email">이메일 *</label>
+			    <div class="input-group">
+			        <input type="email" name="email" id="email" required placeholder="예시) run@naver.com" />
+			        <button type="button" id="emailCheck">이메일 확인</button>
+			    </div>
+			    <span id="emailResult" class="result"></span>
+			
+			    <!-- 이메일 인증번호 입력란 -->
+			    <div id="emailVerification" style="display:none;">
+			        <label for="verificationCode">인증번호 *</label>
+			        <div class="input-group">
+			            <input type="text" id="verificationCode" name="verificationCode" placeholder="인증번호 입력" />
+			            <button type="button" id="verifyCodeBtn">인증번호 확인</button>
+			        </div>
+			        <span id="verificationResult" class="result"></span>
+			    </div>
 			</div>
 			<div class="form-group">
-				<label for="phoneNumber">휴대전화번호</label> <input type="text"
-					name="phoneNumber" placeholder="예시) 010-1234-5678" />
+				<label for="phoneNumber">휴대전화번호</label> <input type="text" name="phoneNumber" placeholder="예시) 010-1234-5678" />
 			</div>
 			<div class="submit-group">
 				<button type="submit" class="submit-button">가입하기</button>
@@ -298,8 +297,24 @@ button:hover {
                     $('#emailResult').html(email + ' 는 이미 사용중 입니다.').css('color', 'red');
                     isEmailChecked = false;  // 중복 확인 실패 상태
                 } else {
-                    $('#emailResult').html(email + ' 는 사용 가능합니다.').css('color', 'green');
-                    isEmailChecked = true;  // 중복 확인 성공 상태
+					// 이메일 중복이 없는 경우 인증번호 발송
+					$.ajax({
+						type: 'post',
+						url: 'sendVerificationCode',
+						data: {'email' : email},
+						dataType: 'JSON',
+						success: function(data) {
+							if (data.success) {
+								$('emailResult').html('인증번호가 발송되었습니다.').css('color', 'green');
+								$('emailVerification').show(); // 인증번호 보이게 함.
+							} else {
+								$('emailResult').html('이메일 전송에 실패했습니다.').css('color', 'red');
+							}
+						},
+						error: function(e) {
+							console.log(e);
+						}
+					});               	
                 }
             },
             error: function(e) {
@@ -409,5 +424,4 @@ button:hover {
         }
     });
 </script>
-
 </html>
